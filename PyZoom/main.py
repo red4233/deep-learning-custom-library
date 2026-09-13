@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 layer_container = net()
 # One column represents the single example passed through the network.
 epoch = 4000
-batch =  6
 batch_size = 145
 validation_size = 5
 epoch_list = []
