@@ -1,6 +1,6 @@
 import numpy as np
 from layer import layers
-from motion import net
+from network import net
 from training_data import data
 import matplotlib.pyplot as plt
 
