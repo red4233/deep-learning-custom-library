@@ -1,26 +1,20 @@
 import numpy as np
-from training_data import data
-#takes number of neurons and observation and creates a 2d array
-# trackable through the index 
+
+
+# A dense layer for the library's current single-sample, column-vector design.
+# For n neurons receiving m inputs, weights has shape (n, m).
 class layers:
-    # we put the objects in sequential list so that we know what the output layer will be for backpropogation
-
-
-    
-    
     def __init__ (self, neuron, input_size, input=None, activation=None):
         self.neuron = neuron
         self.input_size = input_size
-        self.weights = np.zeros((self.neuron, self.input_size))
-        self.bias = np.zeros((self.neuron, 1))
+        self.weights = np.random.uniform(-0.1, 0.1, size=(self.neuron, self.input_size))
+        self.bias = np.random.uniform(-0.1, 0.1, size=(self.neuron, 1))
+        # z caches each neuron's value before its activation is applied.
         self.z = []
-        self.gradient = 0
+        self.gradient = np.zeros((self.neuron, self.input_size))
         self.activation_type = activation
         self.output = activation
         self.input = input
-       
-
-   
 
     def relu(z):
         return np.maximum(0, z)
@@ -32,55 +26,76 @@ class layers:
 
 
     def forward(self, input):
+        # Calculate one pre-activation for each neuron in this layer.
         for i in range(self.neuron):
             self.z.append(np.array(np.dot(self.weights[i], input) + self.bias[i]))
         
-            # figures out if the object layer uses relu and calcs it. then it returns the value to the global activastion function list of all layers
-        if self.output == "relu":
+        # Apply the activation selected when the layer was created.
+        if self.activation_type == "relu":
             self.output = layers.relu(self.z)
         
-        elif self.output == "soft":
+        elif self.activation_type == "soft":
                 self.output = layers.soft(self.z)
 
         else:
             self.output = None
 
-        return self.output
+        return self.output # self.output.shape = (20, 1)
 
-        
 
-    def deriv(self, input):
-        # makes eah layer derivtive indepedent of the other layers during backpropogation.
-        # by seperating final and ongoing derivtives, we can use the final derivtive to update the weights and bias of the layer and the ongoing derivtive to pass back to the previous layer.
+
+    def deriv(self, input, target=None):
+        # final_deriv contains this layer's local derivatives with respect to its
+        # weights. ongoing_deriv contains the derivatives passed toward the
+        # preceding layer. net.backprop() combines both with the later layers.
         if self.activation_type == "relu":
             self.z = np.array(self.z)
-            relu_deriv = np.where(self.z > 0, 1, 0)
-            final_deriv = ( relu_deriv @ input.T)
-            ongoing_deriv = ( relu_deriv * self.weights)
+            relu_deriv = np.where(self.z > 0, 1, 0)  # relu_deriv.shape = (20, 1)
+            final_deriv = ( relu_deriv * input.T) # final_deriv.shape = (20, 3)
+            ongoing_deriv = ( relu_deriv * self.weights ) # ongoing_deriv.shape = (20,3) 
             
         else:
-            soft_deriv = []
+            # Compute the derivative of the correct-class softmax probability
+            # with respect to every output logit.
+            soft_deriv = [] # soft_deriv.shape = (20,1)
             for i in range (len(self.output)):
-                if i == data.correct.index(1):
+                if i == np.argmax(target):
                     x = self.output[i] * (1- self.output[i])
                 else:
-                    x = self.output[i] * self.output[data.correct.index(1)]
-                soft_deriv.append(x)
+                    x = -self.output[i] * self.output[np.argmax(target)]
+                soft_deriv.append(x) 
             soft_deriv = np.array(soft_deriv)
-            x = np.where(self.output)
             
-            final_deriv = -1 / self.output[data.correct.index(1)] * ((soft_deriv) @ input.T)
-            ongoing_deriv = -1 / self.output[data.correct.index(1)] * (self.weights.T @ (soft_deriv))
+            # Multiplying by -1 / p(correct) applies the derivative of the
+            # cross-entropy loss, -log(p(correct)).
+            final_deriv = -1 / self.output[np.argmax(target)] * (soft_deriv * input.T) # final_deriv.shape = (20,20)
+            ongoing_deriv = -1 / self.output[np.argmax(target)] * (self.weights * soft_deriv) # ongoing_deriv = (20,20)
         
         
         return final_deriv, ongoing_deriv
 
+    def loss(output,target):
+       x = np.argmax(target)
+       loss = -np.log(output[x])
+       return loss
+
+    def accuracy(output, target):
+        x = np.argmax(output)
+        if x == np.argmax(target):
+            return 1
+        else:
+            return 0
+        
+
+      
+      
 
 
+
+      
 
         
 
 
         
-
 
