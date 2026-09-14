@@ -3,15 +3,17 @@ from layer import layers
 from network import net
 from training_data import data
 import matplotlib.pyplot as plt
+from test import dat 
 
 layer_container = net()
 # One column represents the single example passed through the network.
-epoch = 4000
-batch_size = 145
-validation_size = 5
+epoch = 2000
+batch_size = 135
+validation_size = 15
 epoch_list = []
 loss_list = []
 accuracy_list = []
+learning_rate = 0.01
 
 
 
@@ -49,12 +51,12 @@ for i in range (epoch):
     layer_container.update_weights(batch_size)
 
 total_accuracy = 0
-for i in range (len(data.validation)):
-    layer_container.layer_list[0].input = data.validation[i]
-    target = data.y_train[i+ len(data.x_train)]
+for i in range (len(data.x_validate)):
+    layer_container.layer_list[0].input = data.x_validate[i]
+    target = data.y_validate[i]
     loss, accuracy = layer_container.forward(target)
     total_accuracy = total_accuracy + accuracy
-print(f" validation accuracy: {total_accuracy/validation_size}")
+print(f" validation accuracy: {total_accuracy / validation_size}")
     
 
 

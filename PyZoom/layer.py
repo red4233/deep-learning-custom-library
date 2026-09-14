@@ -1,8 +1,7 @@
 import numpy as np
 
 
-# A dense layer for the library's current single-sample, column-vector design.
-# For n neurons receiving m inputs, weights has shape (n, m).
+
 class layers:
     def __init__ (self, neuron, input_size, input=None, activation=None):
         self.neuron = neuron
@@ -85,6 +84,7 @@ class layers:
             return 1
         else:
             return 0
+    learning_rate = 0.01
         
 
       

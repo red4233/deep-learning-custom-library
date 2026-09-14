@@ -80,14 +80,13 @@ class net:
 
         
 
-        # Restore forward order for the next network operation.
         self.layer_list = (self.layer_list[::-1])
 
     def update_weights(self, batch_size):
             
             for i in self.layer_list:
                 i.gradient =  i.gradient / batch_size
-                i.weights = i.weights - (0.01 * i.gradient)
+                i.weights = i.weights - (layers.learning_rate * i.gradient)
                 i.gradient = np.zeros(i.weights.shape)
             
              
