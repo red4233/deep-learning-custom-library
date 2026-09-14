@@ -13,7 +13,7 @@ validation_size = 15
 epoch_list = []
 loss_list = []
 accuracy_list = []
-learning_rate = 0.01
+
 
 
 
